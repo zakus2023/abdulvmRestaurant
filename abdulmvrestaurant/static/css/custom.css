@@ -1,0 +1,17 @@
+@keyframes show-toast {
+    0% { bottom: -100%; opacity: 0; } /* Start off-screen */
+    20% { bottom: 100px; opacity: 1; } /* Slide into view */
+    80% { bottom: 100px; opacity: 1; } /* Stay in view */
+    100% { bottom: -100%; opacity: 0; } /* Slide out of view */
+}
+
+.show-notification {
+    position: fixed;
+    bottom: -100%; /* Start off-screen */
+    right: 20px;
+    z-index: 9999; /* Ensure it's on top of other elements */
+    animation-name: show-toast;
+    animation-duration: 8s;
+    animation-fill-mode: forwards; /* Maintain the final state */
+    animation-timing-function: ease-in-out; /* Smooth animation */
+}
