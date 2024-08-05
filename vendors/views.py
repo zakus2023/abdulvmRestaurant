@@ -3,6 +3,7 @@ from accounts.forms import UserForm
 from . forms import VendorForm
 from accounts.models import User, UserProfile
 from django.contrib import messages
+from accounts.utils import send_verification_email
 
 # Create your views here.
 
@@ -39,6 +40,13 @@ def registerVendor(request):
             #assign it
             vendor.user_profile = user_profile
             vendor.save()
+
+            #Send verification email
+            mail_subject = 'Activate your account'
+            email_template = 'accounts/emails/account_verification_email.html'
+            send_verification_email(request, user, mail_subject, email_template)
+
+
             messages.success(request, 'Your account has been successfully created!')
             return redirect('registerVendor')
 
