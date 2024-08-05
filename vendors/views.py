@@ -7,7 +7,12 @@ from django.contrib import messages
 # Create your views here.
 
 def registerVendor(request):
-    if request.method == 'POST':
+    #check if user is already logged in
+    if request.user.is_authenticated:
+        messages.warning(redirect, "You are already logged in")
+        return redirect('myaccount')
+    
+    elif request.method == 'POST':
     #store the data and create the user
         #this one is to store the data from the user form part
         form = UserForm(request.POST)

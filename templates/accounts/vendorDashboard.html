@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h3>Welcome {{user.username}}</h3>
+<p>this is {{user.get_role}}</p>
+<h3>Vendor</h3>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+     {% include 'includes/alerts.html' %}
+    </div>
+  </div>
+{% endblock %}

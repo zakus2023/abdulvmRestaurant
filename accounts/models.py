@@ -86,6 +86,15 @@ class User(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return True
     
+    #use this to get the role of a user and use it to direct user to appropriate dashboard
+    def get_role(self):
+        if self.role == 1:
+            user_role = 'Vendor'
+        else:
+            user_role = 'Customer'
+
+        return user_role
+    
 
 
 class UserProfile(models.Model):
