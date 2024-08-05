@@ -1,0 +1,19 @@
+{% autoescape off %}
+
+Hi  {{user.first_name}},
+
+{% if is_approved %}
+Congratulations!! your Restaurant has been approved to server our loyal customers.
+Once again accept our congratulation.
+
+Team abdul Restaurants
+{% else %}
+We are sorry to inform you that your application to become a vendor in our Restaurant Market place was declined.
+This is due to the fact that you did not meet our criteria.
+Upgrade your licence and reapply.
+
+Team abdul Restaurants
+
+{% endif %}
+
+{% endautoescape %}
