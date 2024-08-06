@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}
+<!--  -->
+{% block content %}
+
+<!-- Main Section Start -->
+<div class="main-section">
+    <!-- cover page here -->
+     {% include 'includes/cover.html' %}
+  </div>
+  <!-- Main Section End -->
+
+<!-- show alerts -->
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+      {% include 'includes/alerts.html' %}
+    </div>
+</div>
+{% endblock %}
+

@@ -1,8 +1,10 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 
 urlpatterns = [
+    #i added the path('', views.myaccount, name='myaccount') this will take when the user enters /account in the url. this will redirect to myaccount
+    path('', views.myaccount, name='myaccount' ),
     path('registerUser/', views.registerUser, name='registerUser'),
     path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),

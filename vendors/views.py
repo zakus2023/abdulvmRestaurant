@@ -4,6 +4,8 @@ from . forms import VendorForm
 from accounts.models import User, UserProfile
 from django.contrib import messages
 from accounts.utils import send_verification_email
+from django.contrib.auth.decorators import login_required, user_passes_test
+from accounts import views as AccountsViews
 
 # Create your views here.
 
@@ -64,3 +66,14 @@ def registerVendor(request):
         'vendor_form':vendor_form
     })
 
+
+
+
+#vendor profile view
+
+#to get the check_role_vendor I imported all the views in the accounts app into this views as AccounttsViews.
+check_role_vendor = AccountsViews.check_role_vendor
+@login_required
+@user_passes_test(check_role_vendor)
+def vprofile(request):
+    return render(request, 'vendors/vprofile.html')
