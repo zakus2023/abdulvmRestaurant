@@ -1,11 +1,12 @@
-from django.shortcuts import render, redirect
-from accounts.forms import UserForm
+from django.shortcuts import render, redirect, get_object_or_404
+from accounts.forms import UserForm, UserProfileForm
 from . forms import VendorForm
 from accounts.models import User, UserProfile
 from django.contrib import messages
 from accounts.utils import send_verification_email
 from django.contrib.auth.decorators import login_required, user_passes_test
 from accounts import views as AccountsViews
+from . models import Vendor
 
 # Create your views here.
 
@@ -76,4 +77,36 @@ check_role_vendor = AccountsViews.check_role_vendor
 @login_required
 @user_passes_test(check_role_vendor)
 def vprofile(request):
-    return render(request, 'vendors/vprofile.html')
+
+    # to update the vendor and userprofile we must get the vendor and userprofile of the logged in user
+    profile = get_object_or_404(UserProfile, user=request.user)
+    vendor = get_object_or_404(Vendor, user=request.user)
+
+    #updating the userprofile and vendor info
+    #check if the user has clicked update btn
+    if request.method == 'POST':
+        #get the data in the form, the files and the original data that was already present in the db which was not changed and keep it profile_form
+        profile_form = UserProfileForm(request.POST, request.FILES, instance=profile)
+        vendor_form = VendorForm(request.POST, request.FILES, instance=vendor)
+
+        if profile_form.is_valid and vendor_form.is_valid:
+            profile_form.save()
+            vendor_form.save()
+            messages.success(request, "Settings updated")
+            return redirect('vprofile')
+
+        else:
+            print(profile_form.errors)
+            print(vendor_form.errors)
+
+    else:   
+
+        #show the current values inside the fields by passing them as instances to the forms before passing the forms as context dics to the template
+        profile_form = UserProfileForm(instance=profile)
+        vendor_form = VendorForm(instance=vendor)
+        return render(request, 'vendors/vprofile.html',{
+            'profile_form':profile_form,
+            'vendor_form':vendor_form,
+            'profile':profile,
+            'vendor':vendor,
+        })
