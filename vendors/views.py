@@ -89,7 +89,7 @@ def vprofile(request):
         profile_form = UserProfileForm(request.POST, request.FILES, instance=profile)
         vendor_form = VendorForm(request.POST, request.FILES, instance=vendor)
 
-        if profile_form.is_valid and vendor_form.is_valid:
+        if profile_form.is_valid() and vendor_form.is_valid():
             profile_form.save()
             vendor_form.save()
             messages.success(request, "Settings updated")
@@ -98,6 +98,13 @@ def vprofile(request):
         else:
             print(profile_form.errors)
             print(vendor_form.errors)
+
+            return render(request, 'vendors/vprofile.html', {
+                'profile_form': profile_form,
+                'vendor_form': vendor_form,
+                'profile': profile,
+                'vendor': vendor,
+            })
 
     else:   
 
