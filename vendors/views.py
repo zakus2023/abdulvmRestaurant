@@ -7,8 +7,22 @@ from accounts.utils import send_verification_email
 from django.contrib.auth.decorators import login_required, user_passes_test
 from accounts import views as AccountsViews
 from . models import Vendor
+from menu.models import Category, Product
+from menu.forms import CategoryForm
+from django.template.defaultfilters import slugify
 
 # Create your views here.
+
+
+# this was added later to get the id of the logged in user in this case the vendor. 
+# This function will be called anytime we need to get the id of the current vendor
+
+def get_vendor(request):
+    vendor = Vendor.objects.get(user=request.user)
+    return vendor
+
+
+#===================================================================================
 
 def registerVendor(request):
     #check if user is already logged in
@@ -117,3 +131,126 @@ def vprofile(request):
             'profile':profile,
             'vendor':vendor,
         })
+    
+
+# menu builder view
+
+check_role_vendor = AccountsViews.check_role_vendor
+@login_required
+@user_passes_test(check_role_vendor)
+def menu_builder(request):
+    # get the logged in user
+    vendor = get_vendor(request)
+    # get all the categories of the vendor who is logged in
+    categories = Category.objects.filter(vendor=vendor).order_by('updated_at')
+
+    return render(request, 'vendors/menu-builder.html',{
+        'categories':categories
+    })
+
+
+# get products by category
+
+check_role_vendor = AccountsViews.check_role_vendor
+@login_required
+@user_passes_test(check_role_vendor)
+def products_by_category(request, pk=None):
+    # get the id of the vendor who is logged in. I am using the get_vendor function created at the top
+    vendor = get_vendor(request)
+    # get the primary key of the selected category
+    category = get_object_or_404(Category, pk=pk)
+    # get all the products under the category and of the logged in user
+    products = Product.objects.filter(vendor=vendor, category=category)
+    return render(request, 'vendors/products_by_category.html',{
+        'products':products,
+        'category':category,
+    })
+
+
+# Category CRUD
+
+def add_category(request):
+    # check if the user has clicked on creat button
+    if request.method == 'POST':
+        # pass all the data in the form to the category form and store it in the form variable
+        form = CategoryForm(request.POST)
+        # check if the form is filled well or has data in it
+        if form.is_valid():
+            # save the data in the category variable but don't commit into database until other required info is added
+            category = form.save(commit=False)
+            # get the logged in vendor and add the id to the data inside the category variable
+            category.vendor = get_vendor(request) 
+            #generate the slug and add it to the data to be saved
+            # first get the category name entered by the user
+            category_name = form.cleaned_data['category_name']
+            #generate the slug based on the category name
+            category.slug = slugify(category_name)
+            # save the form
+            category.save()
+            # dispaly a success message to the user
+            messages.success(request, "Category created succesfully")
+            # redirect the user to the menu bulder page
+            return redirect('menu_builder')
+        else:
+            # rerender the form with the errors         
+            return render(request, 'vendors/add_category.html',{
+            'form':form
+        })            
+        
+    # otherwise show the user the form to be filled
+    else:
+        form = CategoryForm()
+        return render(request, 'vendors/add_category.html',{
+            'form':form
+        })
+    
+#edit category
+
+def edit_category(request, pk=None):
+    #get the category instance based on the primary key
+    category = get_object_or_404(Category, pk=pk)
+    # check if the user has clicked on creat button
+    if request.method == 'POST':
+        # pass all the data in the form to the category form and store it in the form variable. 
+        # instnace=instance adds the already existing data that did not change
+        form = CategoryForm(request.POST, instance=category)
+        # check if the form is filled well or has data in it
+        if form.is_valid():
+            # save the data in the category variable but don't commit into database until other required info is added
+            category = form.save(commit=False)
+            # get the logged in vendor and add the id to the data inside the category variable
+            category.vendor = get_vendor(request) 
+            #generate the slug and add it to the data to be saved
+            # first get the category name entered by the user
+            category_name = form.cleaned_data['category_name']
+            #generate the slug based on the category name
+            category.slug = slugify(category_name)
+            # save the form
+            category.save()
+            # dispaly a success message to the user
+            messages.success(request, "Category updated succesfully")
+            # redirect the user to the menu bulder page
+            return redirect('menu_builder')
+        else:
+            # rerender the form with the errors         
+            return render(request, 'vendors/add_category.html',{
+            'form':form
+        })            
+        
+    # otherwise show the user the form to be filled
+    else:
+        form = CategoryForm(instance=category)
+        return render(request, 'vendors/edit_category.html',{
+            'form':form,
+            'cat':category,
+        })
+    
+    #delete category
+
+def delete_category(request, pk=None):
+    #get the particular category using the primary key. This pk is obtained when the user clicks on the items link
+    category = get_object_or_404(Category, pk=pk)
+    #delete the category
+    category.delete()
+    messages.success(request, "Category has been deleted successfully")
+    return redirect('menu_builder')

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="main-section">
+  {% include 'includes/cover.html' %}
+</div>
+
+<div class="page-section account-header buyer-logged-in">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+        {% include 'includes/v_sidebar.html' %}
+      </div>
+
+      <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
+        <div class="user-dashboard loader-holder">
+          <div class="user-holder">
+            <h5 class="text-uppercase">Build Your Food Menu</h5>
+            <h6>Edit Category</h6>
+            <hr>
+
+            <form action="{% url 'edit_category' cat.id %}" method="POST">
+              {% csrf_token %}
+              <div class="form-fields-set">
+                <div class="row">
+                  <div class="col-lg-12 col-md-12 col-sm-12">
+                    <div class="field-holder">
+                      <label>Category Name *</label>
+                      {{ form.category_name }}
+                      {% if form.category_name.errors %}
+                        <ul style="color: red;">
+                          {% for error in form.category_name.errors %}
+                            <li>{{ error }}</li>
+                          {% endfor %}
+                        </ul>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  <div class="col-lg-12 col-md-12 col-sm-12">
+                    <div class="field-holder">
+                      <label>Description</label>
+                      {{ form.description }}
+                      {% if form.description.errors %}
+                        <ul style="color: red;">
+                          {% for error in form.description.errors %}
+                            <li>{{ error }}</li>
+                          {% endfor %}
+                        </ul>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-info">Edit</button>
+            </form>
+
+            {% if form.non_field_errors %}
+              <div class="form-errors" style="color: red;">
+                <ul>
+                  {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+    {% include 'includes/alerts.html' %}
+  </div>
+</div>
+{% endblock %}

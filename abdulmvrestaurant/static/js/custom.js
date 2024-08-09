@@ -49,6 +49,7 @@ function onPlaceChanged() {
       $("#id_longitude").val(longitude);
 
       $("#id_address").val(address);
+      console.log(address)
     }
   });
   // loop through the address components and assign other address components to their respective fields
