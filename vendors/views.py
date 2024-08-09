@@ -8,8 +8,9 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from accounts import views as AccountsViews
 from . models import Vendor
 from menu.models import Category, Product
-from menu.forms import CategoryForm
+from menu.forms import CategoryForm, ProductForm
 from django.template.defaultfilters import slugify
+
 
 # Create your views here.
 
@@ -27,7 +28,7 @@ def get_vendor(request):
 def registerVendor(request):
     #check if user is already logged in
     if request.user.is_authenticated:
-        messages.warning(redirect, "You are already logged in")
+        messages.warning(request, "You are already logged in")
         return redirect('myaccount')
     
     elif request.method == 'POST':
@@ -168,7 +169,9 @@ def products_by_category(request, pk=None):
 
 
 # Category CRUD
-
+check_role_vendor = AccountsViews.check_role_vendor
+@login_required
+@user_passes_test(check_role_vendor)
 def add_category(request):
     # check if the user has clicked on creat button
     if request.method == 'POST':
@@ -205,7 +208,9 @@ def add_category(request):
         })
     
 #edit category
-
+check_role_vendor = AccountsViews.check_role_vendor
+@login_required
+@user_passes_test(check_role_vendor)
 def edit_category(request, pk=None):
     #get the category instance based on the primary key
     category = get_object_or_404(Category, pk=pk)
@@ -233,7 +238,7 @@ def edit_category(request, pk=None):
             return redirect('menu_builder')
         else:
             # rerender the form with the errors         
-            return render(request, 'vendors/add_category.html',{
+            return render(request, 'vendors/edit_category.html',{
             'form':form
         })            
         
@@ -246,7 +251,9 @@ def edit_category(request, pk=None):
         })
     
     #delete category
-
+check_role_vendor = AccountsViews.check_role_vendor
+@login_required
+@user_passes_test(check_role_vendor)
 def delete_category(request, pk=None):
     #get the particular category using the primary key. This pk is obtained when the user clicks on the items link
     category = get_object_or_404(Category, pk=pk)
@@ -254,3 +261,104 @@ def delete_category(request, pk=None):
     category.delete()
     messages.success(request, "Category has been deleted successfully")
     return redirect('menu_builder')
+
+# Products CRUD
+# ============================================================
+#add product
+check_role_vendor = AccountsViews.check_role_vendor
+@login_required
+@user_passes_test(check_role_vendor)
+def add_products(request):
+    if request.method == 'POST':
+        # pass all the data in the form to the category form and store it in the form variable
+        form = ProductForm(request.POST, request.FILES)
+        # check if the form is filled well or has data in it
+        if form.is_valid():
+            # save the data in the category variable but don't commit into database until other required info is added
+            product = form.save(commit=False)
+            # get the logged in vendor and add the id to the data inside the category variable
+            product.vendor = get_vendor(request) 
+            #generate the slug and add it to the data to be saved
+            # first get the category name entered by the user
+            food_title = form.cleaned_data['food_title']
+            #generate the slug based on the category name
+            product.slug = slugify(food_title)
+            # save the form
+            product.save()
+            # dispaly a success message to the user
+            messages.success(request, "Product created succesfully")
+            # redirect the user to the menu bulder page
+            return redirect('products_by_category', product.category.id)
+        else:
+            # rerender the form with the errors         
+            return render(request, 'vendors/add_product.html',{
+            'form':form
+        })            
+        
+    # otherwise show the user the form to be filled
+    else:
+        form = ProductForm()
+        #modify the form to show only categories that velongs to the current user
+        form.fields['category'].queryset = Category.objects.filter(vendor= get_vendor(request))
+        return render(request, 'vendors/add_product.html',{
+            'form':form
+        })
+    
+
+#edit_product
+check_role_vendor = AccountsViews.check_role_vendor
+@login_required
+@user_passes_test(check_role_vendor)
+def edit_products(request, pk=None):
+    #get the category instance based on the primary key
+    product = get_object_or_404(Product, pk=pk)
+    # check if the user has clicked on creat button
+    if request.method == 'POST':
+        # pass all the data in the form to the category form and store it in the form variable. 
+        # instnace=instance adds the already existing data that did not change
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        # check if the form is filled well or has data in it
+        if form.is_valid():
+            # save the data in the category variable but don't commit into database until other required info is added
+            food = form.save(commit=False)
+            # get the logged in vendor and add the id to the data inside the food variable
+            food.vendor = get_vendor(request) 
+            #generate the slug and add it to the data to be saved
+            # first get the category name entered by the user
+            food_title = form.cleaned_data['food_title']
+            #generate the slug based on the food title
+            food.slug = slugify(food_title)
+            # save the form
+            food.save()
+            # dispaly a success message to the user
+            messages.success(request, "Product updated succesfully")
+            # redirect the user to the menu product by category page
+            return redirect('products_by_category', product.category.id)
+        else:
+            # rerender the form with the errors         
+            return render(request, 'vendors/edit_product.html',{
+            'form':form,
+            'pro':product,
+        })            
+        
+    # otherwise show the user the form to be filled
+    else:
+        form = ProductForm(instance=product)
+        return render(request, 'vendors/edit_product.html',{
+            'form':form,
+            'pro':product,
+        })
+    
+
+
+#delete product
+check_role_vendor = AccountsViews.check_role_vendor
+@login_required
+@user_passes_test(check_role_vendor)
+def delete_product(request, pk=None):
+    #get the particular category using the primary key. This pk is obtained when the user clicks on the items link
+    product = get_object_or_404(Product, pk=pk)
+    #delete the product
+    product.delete()
+    messages.success(request, "Product has been deleted successfully")
+    return redirect('products_by_category', product.category.id)

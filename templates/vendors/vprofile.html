@@ -39,11 +39,18 @@
                               <li class="gal-img">
                                 <div class="drag-list">
                                   <div class="item-thumb">
+                                    {% if profile.profile_picture %}
                                     <img
                                       class="thumbnail"
                                       src="{{ profile.profile_picture.url }}"
                                       alt=""
                                     />
+                                    {% else %}
+                                    <img
+                                      src="{% static 'images/defaultprofile.jpg' %}"
+                                      alt=""
+                                    />
+                                    {% endif %}
                                   </div>
                                 </div>
                               </li>
@@ -56,7 +63,9 @@
                               {{profile_form.profile_picture}}
                             </div>
                           </div>
-						  <label class="text-danger">{{ profile_form.profile_picture.errors }}</label>
+                          <label class="text-danger"
+                            >{{ profile_form.profile_picture.errors }}</label
+                          >
                         </div>
                       </div>
                       <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -66,11 +75,19 @@
                               <li class="gal-img">
                                 <div class="drag-list">
                                   <div class="item-thumb">
+                                    {% if profile.cover_photo %}
                                     <img
                                       class="thumbnail"
                                       src="{{ profile.cover_photo.url }}"
                                       alt=""
                                     />
+                                    {% else %}
+                                    <img
+                                      src="{% static 'images/default-cover.PNG' %}"
+                                      alt=""
+                                    />
+                                    {% endif %}
+                                    
                                   </div>
                                 </div>
                               </li>
@@ -83,7 +100,9 @@
                               {{profile_form.cover_photo}}
                             </div>
                           </div>
-						  <label class="text-danger">{{ profile_form.cover_photo.errors }}</label>
+                          <label class="text-danger"
+                            >{{ profile_form.cover_photo.errors }}</label
+                          >
                         </div>
                       </div>
                       <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -110,7 +129,9 @@
                               {{vendor_form.vendor_license}}
                             </div>
                           </div>
-						  <label class="text-danger">{{ vendor_form.vendor_license.errors }}</label>
+                          <label class="text-danger"
+                            >{{ vendor_form.vendor_license.errors }}</label
+                          >
                         </div>
                       </div>
                       <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -128,7 +149,6 @@
                           {{profile_form.address}}
                         </div>
                       </div>
-
 
                       <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                         <div class="field-holder">
@@ -187,7 +207,6 @@
                     </div>
                   </div>
                 </div>
-				
               </div>
             </form>
             <!-- My Restaurants Form End -->

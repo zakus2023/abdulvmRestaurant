@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="main-section">
+  {% include 'includes/cover.html' %}
+</div>
+
+<div class="page-section account-header buyer-logged-in">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+        {% include 'includes/v_sidebar.html' %}
+      </div>
+
+      <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
+        <div class="user-dashboard loader-holder">
+          <div class="user-holder">
+            <h5 class="text-uppercase">Build Your Food Menu</h5>
+            <h6>Add New Product</h6>
+            <hr>
+
+            <form action="{% url 'add_products' %}" method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="form-fields-set">
+                <div class="row">
+
+                    <div class="col-lg-12 col-md-12 col-sm-12">
+                        <div class="field-holder">
+                          <label>Product Category *</label>
+                          {{ form.category }}
+                          {% if form.category.errors %}
+                            <ul style="color: red;">
+                              {% for error in form.category.errors %}
+                                <li>{{ error }}</li>
+                              {% endfor %}
+                            </ul>
+                          {% endif %}
+                        </div>
+                      </div>
+
+
+                  <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="field-holder">
+                      <label>Product Title *</label>
+                      {{ form.food_title }}
+                      {% if form.food_title.errors %}
+                        <ul style="color: red;">
+                          {% for error in form.food_title.errors %}
+                            <li>{{ error }}</li>
+                          {% endfor %}
+                        </ul>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="field-holder">
+                      <label>Product Photo *</label>
+                      {{ form.image }}
+                      {% if form.image.errors %}
+                        <ul style="color: red;">
+                          {% for error in form.image.errors %}
+                            <li>{{ error }}</li>
+                          {% endfor %}
+                        </ul>
+                      {% endif %}
+                    </div>
+                  </div>
+                  
+
+                  <div class="col-lg-12 col-md-12 col-sm-12">
+                    <div class="field-holder">
+                      <label>Description</label>
+                      {{ form.description }}
+                      {% if form.description.errors %}
+                        <ul style="color: red;">
+                          {% for error in form.description.errors %}
+                            <li>{{ error }}</li>
+                          {% endfor %}
+                        </ul>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  
+
+                  <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="field-holder">
+                      <label>Product Price </label>
+                      {{ form.price }}
+                      {% if form.price.errors %}
+                        <ul style="color: red;">
+                          {% for error in form.price.errors %}
+                            <li>{{ error }}</li>
+                          {% endfor %}
+                        </ul>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="field-holder">
+                      <label>Availability </label>
+                      {{ form.is_available }}
+                      {% if form.is_available.errors %}
+                        <ul style="color: red;">
+                          {% for error in form.is_available.errors %}
+                            <li>{{ error }}</li>
+                          {% endfor %}
+                        </ul>
+                      {% endif %}
+                    </div>
+                  </div>
+
+
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-info">Create</button>
+            </form>
+
+            {% if form.non_field_errors %}
+              <div class="form-errors" style="color: red;">
+                <ul>
+                  {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+    {% include 'includes/alerts.html' %}
+  </div>
+</div>
+{% endblock %}
