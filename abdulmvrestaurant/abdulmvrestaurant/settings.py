@@ -28,7 +28,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', cast=bool)
 
-ALLOWED_HOSTS = ['45.79.190.40', '127.0.0.1', 'abdulmart.store', 'www.abdulmart.store']
+ALLOWED_HOSTS = ['173.255.236.98', '127.0.0.1', 'abdulmart.store', 'www.abdulmart.store']
 
 
 # Application definition

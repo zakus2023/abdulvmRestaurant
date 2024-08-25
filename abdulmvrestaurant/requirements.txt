@@ -1,17 +1,17 @@
 asgiref==3.8.1
+backports.zoneinfo==0.2.1;python_version<"3.9"
 basemap-data==1.3.2
 certifi==2024.7.4
 contourpy==1.2.1
 cycler==0.12.1
 Django==5.0.7
 fonttools==4.53.1
-GDAL @ file:///C:/Projects/django%20multi%20vendor%20restaurant/abdulmvrestaurant/GDAL-3.8.4-cp312-cp312-win_amd64.whl#sha256=841c9569814fb5167e5b5652cf244f20a91051d1d6dd1ee97e72a0a9c0631d8c
 kiwisolver==1.4.5
 matplotlib==3.8.4
 numpy==1.26.4
 packaging==23.2
 pillow==10.4.0
-psycopg2==2.9.9
+psycopg2-binary
 pyparsing==3.1.2
 pyproj==3.6.1
 pyshp==2.3.1
@@ -21,3 +21,4 @@ simplejson==3.19.3
 six==1.16.0
 sqlparse==0.5.1
 tzdata==2024.1
+gunicorn
