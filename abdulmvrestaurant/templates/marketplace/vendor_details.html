@@ -1,0 +1,198 @@
+{% extends 'base.html' %} {% load static %} {% block content %}
+<!-- Main Section Start -->
+<div class="main-section">
+  <div
+    class="page-section restaurant-detail-image-section"
+    style="background: url({% if vendor.user_profile.cover_photo %}{{ vendor.user_profile.cover_photo.url }}{% else %}{% static 'images/default-cover.PNG' %}{% endif %}) no-repeat scroll 0 0 / cover;"
+  >
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <div class="company-info-detail">
+            <div class="company-info">
+              <div class="img-holder">
+                <figure>
+                  {% if vendor.user_profile.profile_picture %}
+                  <img
+                    src="{{ vendor.user_profile.profile_picture.url }}"
+                    alt=""
+                  />
+                  {% else %}
+                  <img src="{% static 'images/default-profile.PNG' %}" alt="" />
+                  {% endif %}
+                </figure>
+              </div>
+              <div class="text-holder">
+                <!-- i am using the is_open as a field of vendor because i created a a member function
+                 inside vendor model called is_open -->
+                <span class="restaurant-title">{{vendor.vendor_name}} {% if not vendor.is_open or opening_hours.is_closed %}[Closed]{% endif %}</span>
+                {% if vendor.user_profile.address %}
+                <p>
+                  <i class="icon-local_pizza"></i>
+                  {{vendor.user_profile.address}}
+                </p>
+                {% endif %}
+              </div>
+            </div>
+            {% if opening_hours %}
+            <div class="delivery-timing reviews-sortby">
+              <ul>
+                
+                <li>
+                  <a href="#" class="reviews-sortby-active">
+                    <span>Today:</span> {% for i in current_days_opening_hours %}
+                    <span>{% if i.is_closed %}Closed{% else %} {{i.from_hour}} - {{i.to_hour}} {% endif %}</span>
+                    
+                    {% endfor %}
+                    <i class="icon-chevron-small-down"></i>
+                  </a>
+                  <ul class="delivery-dropdown">
+                    <!-- Sample Timings -->
+                    {% for hour in opening_hours %}
+                    <li>
+                      <a href="#">
+                        <span class="opend-day">{{ hour }}</span>
+                        <span class="opend-time"
+                          ><small>:</small> {% if hour.is_closed %} Closed {% else %} {{ hour.from_hour }} - {{hour.to_hour}} {% endif %}</span
+                        >
+                      </a>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                  
+                </li>
+              </ul>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-section">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12 sticky-sidebar">
+          <div class="filter-wrapper">
+            <div class="categories-menu">
+              <h6><i class="icon-restaurant_menu"></i>Categories</h6>
+              <ul class="menu-list">
+                {% for category in categories %}
+                <li class="active">
+                  <a href="#" class="menu-category-link">{{ category }}</a>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-9 col-md-9 col-sm-8 col-xs-12">
+          <div class="tabs-holder horizontal">
+            <ul class="stickynav-tabs nav nav-tabs">
+              <li class="active">
+                <a data-toggle="tab" href="#home">
+                  <i class="icon- icon-room_service"></i>Menu
+                </a>
+              </li>
+            </ul>
+            <div class="tab-content">
+              <div id="home" class="tab-pane in active">
+                <div class="menu-itam-holder">
+                  {% for category in categories %}
+                  <div
+                    id="menu-item-list-{{ forloop.counter }}"
+                    class="menu-itam-list"
+                  >
+                    <div
+                      class="element-title"
+                      id="menu-category-{{ forloop.counter }}"
+                    >
+                      <h5 class="text-color">{{ category }}</h5>
+                      <span>{{ category.description }}</span>
+                    </div>
+                    <ul>
+                      {% for food in category.product.all %}
+                      <li>
+                        <div class="image-holder">
+                          {% if food.image %}
+                          <a href="#">
+                            <img src="{{ food.image.url }}" alt="" />
+                          </a>
+
+                          {% else %}
+                          <a href="#">
+                            <img
+                              src="{% static 'images/default-profile.PNG' %}"
+                              alt=""
+                            />
+                          </a>
+
+                          {% endif %}
+                        </div>
+                        <div class="text-holder">
+                          <h6>{{ food.food_title }}</h6>
+                          <span>{{ food.description }}</span>
+                        </div>
+                        <div class="price-holder">
+                          <span class="price">${{ food.price }}</span>
+                          <!-- added data-id={{food.id }} to get the id of the particular food.also
+                           add data-url to get the url. the url is the name of the path pattern and add the
+                           food.id since it takes the food_id. 
+                           That is the id that will be taken when the button is clicked refer to
+                           the custom.js file-->
+                          <a
+                            href="#"
+                            class="remove_from_cart"
+                            style="margin-right: 28px"
+                            data-id="{{food.id}}"
+                            data-url="{% url 'remove_from_cart' food.id %}"
+                          >
+                            <i class="icon-minus text-color"></i>
+                          </a>
+                          <!-- -{{food.id}} was added to make the id dynamic. this will add the food id to qty-3 eg -->
+                          <label id="qty-{{food.id}}">0</label>
+                          <!-- added data-id={{food.id }} to get the id of the particular food. also
+                           add data-url to get the url. the url is the name of the path pattern and add the
+                           food.id since it takes the food_id.
+                           That is the id that will be taken when the button is clicked refer to
+                           the custom.js file-->
+                          <a
+                            href="#"
+                            class="add_to_cart"
+                            data-id="{{food.id}}"
+                            data-url="{% url 'add_to_cart' food.id %}"
+                          >
+                            <i class="icon-plus text-color"></i>
+                          </a>
+                        </div>
+                      </li>
+
+                      {% endfor %}
+                    </ul>
+                  </div>
+                  <hr />
+                  {% endfor %}
+                </div>
+                <!-- I use this to llop through the cart items to get the quantity. 
+                 I then assign the quantity to the respective id. This is picked by the ajax request function -->
+                {% for item in cart_items %}
+                <span
+                  id="qty-{{item.product.id}}"
+                  class="item_qty d-none"
+                  data-qty="{{item.quantity}}"
+                >
+                  {{item.quantity}}</span
+                >
+                {% endfor %}
+                <!-- ------------------------- -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Main Section End -->
+{% endblock %}

@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+<!--  -->
+{% load static %}
+<!--  -->
+{% block content %}
+<!-- Main Section Start -->
+<div class="main-section pt-5">
+  <div class="page-section">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-7 col-md-8 col-sm-8 col-xs-12">
+          <div class="tabs-holder horizontal">
+            <ul class="stickynav-tabs nav nav-tabs">
+              <li class="active">
+                <a data-toggle="tab" href="#home">
+                  <i class="fa fa-shopping-cart"></i>Cart Items
+                </a>
+              </li>
+            </ul>
+            <div class="tab-content">
+              <div id="home" class="tab-pane in active">
+                <div class="menu-itam-holder">
+                  <!-- this i added to handle the display of your cart is empty when there is 0 items in the cart
+                     I will handle the display in the custom js -->
+                  <div
+                    class="text-center p-5"
+                    id="empty-cart"
+                    style="display: none"
+                  >
+                    <h3>Cart is empty</h3>
+                  </div>
+                  <div
+                    id="menu-item-list-{{ forloop.counter }}"
+                    class="menu-itam-list"
+                  >
+                    <!-- chwck if there is cart item -->
+
+                    <ul>
+                      {% if cart_items %}
+                      <!--  -->
+                      {% for item in cart_items %}
+                      <!-- I added the id='cart-item{{item.id}} to the <li> tag because I want to use it in the custom.js-removeCartItem function
+                        This is to remove the entire li tag with the element id. this will remove the li without reloading the page' -->
+                      <li id="cart-item-{{item.id}}">
+                        <div class="image-holder">
+                          {% if item.product.image %}
+                          <a href="#">
+                            <img src="{{ item.product.image.url }}" alt="" />
+                          </a>
+
+                          {% else %}
+                          <a href="#">
+                            <img
+                              src="{% static 'images/default-profile.PNG' %}"
+                              alt=""
+                            />
+                          </a>
+
+                          {% endif %}
+                        </div>
+                        <div class="text-holder">
+                          <h6>{{ item.product.food_title }}</h6>
+                          <span>{{ item.product.description }}</span>
+                          <!-- show the vendor name. and when you click on it it should take you to the vendor page  -->
+                          <a
+                            href="{% url 'vendor_detail' item.product.vendor.vendor_slug %}"
+                            class="badge badge-warning"
+                            >{{item.product.vendor.vendor_name}}</a
+                          >
+                        </div>
+                        <div class="price-holder">
+                          <span class="price">${{ item.product.price }}</span>
+                          <!-- added data-id={{food.id }} to get the id of the particular food.also
+                             add data-url to get the url. the url is the name of the path pattern and add the
+                             food.id since it takes the food_id. 
+                             That is the id that will be taken when the button is clicked refer to
+                             the custom.js file-->
+                          <a
+                            href="#"
+                            class="remove_from_cart"
+                            style="margin-right: 28px"
+                            data-id="{{item.product.id}}"
+                            id="{{item.id}}"
+                            data-url="{% url 'remove_from_cart' item.product.id %}"
+                          >
+                            <i class="icon-minus text-color"></i>
+                          </a>
+                          <!-- -{{food.id}} was added to make the id dynamic. this will add the food id to qty-3 eg -->
+                          <label id="qty-{{item.product.id}}">0</label>
+                          <!-- added data-id={{food.id }} to get the id of the particular food. also
+                             add data-url to get the url. the url is the name of the path pattern and add the
+                             food.id since it takes the food_id.
+                             That is the id that will be taken when the button is clicked refer to
+                             the custom.js file-->
+                          <a
+                            href="#"
+                            class="add_to_cart"
+                            data-id="{{item.product.id}}"
+                            data-url="{% url 'add_to_cart' item.product.id %}"
+                          >
+                            <i class="icon-plus text-color"></i>
+                          </a>
+                          <a
+                            href="#"
+                            class="delete_cart_item"
+                            data-id="{{item.id}}"
+                            data-url="{% url 'delete_cart_item' item.id %}"
+                          >
+                            <i class="icon-delete text-color"></i>
+                          </a>
+                        </div>
+                      </li>
+
+                      {% endfor %}
+                      <!--  -->
+                      {% else %}
+
+                      <div class="text-center p-5">
+                        <h3>Cart is empty</h3>
+                      </div>
+
+                      <!--  -->
+                      {% endif %}
+                    </ul>
+                  </div>
+                </div>
+                <!-- I use this to llop through the cart items to get the quantity. 
+                   I then assign the quantity to the respective id. This is picked by the ajax request function -->
+                {% for item in cart_items %}
+                <span
+                  id="qty-{{item.product.id}}"
+                  class="item_qty d-none"
+                  data-qty="{{item.quantity}}"
+                >
+                  {{item.quantity}}</span
+                >
+                {% endfor %}
+                <!-- ------------------------- -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- the other section -->
+
+        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+          <div class="tabs-holder horizontal">
+            <ul class="stickynav-tabs nav nav-tabs">
+              <li class="active">
+                <a data-toggle="tab" href="#home">
+                  <i class="icon- icon-room_service"></i>Your order
+                </a>
+              </li>
+            </ul>
+            <div class="tab-content">
+              <div id="home" class="tab-pane in active">
+                <div class="menu-itam-holder">
+                  <div>
+                    <ul>
+                      <li style="list-style-type: none">
+                        Subtotal
+                        <span class="price float-right">
+                          <span class="currency">$</span>
+                          <span id="subtotal">{{subtotal}}</span>
+                        </span>
+                      </li>
+
+                      <!-- ------------------------tax -->
+                      <!-- the key is the tax type, i is the tax percent, j is the tax amount -->
+                      <!-- loop through the nested dictionary -->
+                      {% for key, value in tax_dict.items %} 
+                      <!--  -->
+                      {% for i, j in value.items %}
+                      <li style="list-style-type: none">
+                        {{key}} <small>({{i}})%</small>
+                        <span class="price float-right">
+                          <span class="currency">$</span>
+                          <!-- make the id dynamic using the key since it is unique. This will be used in the ajax request
+                           to update the tax fields without refreshing the page -->
+                          <span id="tax-{{key}}">{{j}}</span>
+                        </span>
+                      </li>
+                      {% endfor %} 
+                      <!--  -->
+                      {% endfor %}
+                      <!-- ---------------tax -->
+
+                      <li style="list-style-type: none; font-weight: 600">
+                        Total
+                        <span class="price float-right">
+                          <span class="currency">$</span>
+                          <span id="total">{{grand_total}}</span>
+                        </span>
+                      </li>
+                      <br>
+                      <a href="{% url 'checkout' %}" class="btn btn-danger w-100 p-2">Proceed to Checkout</a>
+                    </ul>
+                  </div>
+                </div>
+                <!-- I use this to llop through the cart items to get the quantity. 
+                   I then assign the quantity to the respective id. This is picked by the ajax request function -->
+                {% for item in cart_items %}
+                <span
+                  id="qty-{{item.product.id}}"
+                  class="item_qty d-none"
+                  data-qty="{{item.quantity}}"
+                >
+                  {{item.quantity}}</span
+                >
+                {% endfor %}
+                <!-- ------------------------- -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Main Section End -->
+{% endblock %}

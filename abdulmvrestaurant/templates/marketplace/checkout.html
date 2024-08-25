@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+<!--  -->
+{% load static %}
+<!--  -->
+{% block content %}
+<!-- Main Section Start -->
+<div class="main-section pt-5">
+  <div class="page-section">
+    <div class="container">
+
+        <!-- form starts here -->
+      <form action="{% url 'place_order' %}" method="POST">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div class="tabs-holder horizontal">
+              <ul class="stickynav-tabs nav nav-tabs">
+                <li class="active">
+                  <a data-toggle="tab" href="#home">
+                    <i class="fa fa-shopping-cart"></i>Billing Address
+                  </a>
+                </li>
+              </ul>
+              <div class="tab-content">
+                <div id="home" class="tab-pane in active">
+                  <div class="menu-itam-holder">
+                    <!-- this i added to handle the display of your cart is empty when there is 0 items in the cart
+                     I will handle the display in the custom js -->
+
+                    <div
+                      id="menu-item-list-{{ forloop.counter }}"
+                      class="menu-itam-list"
+                    >
+                      <div class="row">
+                        <div class="form-group col-md-6 col-sm-12 col-lg-6">
+                          First Name: {{form.first_name}}
+                        </div>
+                        <div class="form-group col-md-6 col-sm-12 col-lg-6">
+                          Last Name: {{form.last_name}}
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="form-group col-md-6 col-sm-12 col-lg-6">
+                          Phone: {{form.phone}}
+                        </div>
+                        <div class="form-group col-md-6 col-sm-12 col-lg-6">
+                          Email: {{form.email}}
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="form-group col-md-12 col-sm-12 col-lg-12">
+                          Address: {{form.address}}
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="form-group col-md-6 col-sm-12 col-lg-6">
+                          Country: {{form.country}}
+                        </div>
+                        <div class="form-group col-md-6 col-sm-12 col-lg-6">
+                          Province: {{form.province}}
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="form-group col-md-6 col-sm-12 col-lg-6">
+                          City: {{form.city}}
+                        </div>
+                        <div class="form-group col-md-6 col-sm-12 col-lg-6">
+                          Postal Code: {{form.postal_code}}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- I use this to llop through the cart items to get the quantity. 
+                   I then assign the quantity to the respective id. This is picked by the ajax request function -->
+
+                  <!-- ------------------------- -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- the other section -->
+
+          <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div class="tabs-holder horizontal">
+              <ul class="stickynav-tabs nav nav-tabs">
+                <li class="active">
+                  <a data-toggle="tab" href="#home">
+                    <i class="icon- icon-room_service"></i>Your order
+                  </a>
+                </li>
+              </ul>
+              <div class="tab-content">
+                <div id="home" class="tab-pane in active">
+                  <div class="menu-itam-holder">
+                    <div
+                      id="menu-item-list-{{ forloop.counter }}"
+                      class="menu-itam-list"
+                    >
+                      <!-- chwck if there is cart item -->
+
+                      <ul>
+                        <!--  -->
+                        {% for item in cart_items %}
+                        <!-- I added the id='cart-item{{item.id}} to the <li> tag because I want to use it in the custom.js-removeCartItem function
+                        This is to remove the entire li tag with the element id. this will remove the li without reloading the page' -->
+                        <li id="cart-item-{{item.id}}">
+                          <div class="image-holder">
+                            {% if item.product.image %}
+                            <a href="#">
+                              <img src="{{ item.product.image.url }}" alt="" />
+                            </a>
+
+                            {% else %}
+                            <a href="#">
+                              <img
+                                src="{% static 'images/default-profile.PNG' %}"
+                                alt=""
+                              />
+                            </a>
+
+                            {% endif %}
+                          </div>
+                          <div class="text-holder">
+                            <h6>{{ item.product.food_title }}</h6>
+                            <a
+                              href="{% url 'vendor_detail' item.product.vendor.vendor_slug %}"
+                              class="badge badge-warning"
+                              >{{item.product.vendor.vendor_name}}</a
+                            >
+                          </div>
+                          <div
+                            class="quantity"
+                            style="
+                              display: inline-block;
+                              position: absolute;
+                              top: 50%;
+                              transform: translateY(-50%);
+                              margin-top: -5px;
+                            "
+                          >
+                            <label id="qty-{{item.product.id}}">0</label>
+                          </div>
+                          <div class="price-holder">
+                            <span class="price">${{ item.product.price }}</span>
+                          </div>
+                        </li>
+
+                        {% endfor %}
+                        <!--  -->
+
+                        <!--  -->
+                      </ul>
+                    </div>
+                    <hr />
+                    <div>
+                      <ul>
+                        <li style="list-style-type: none">
+                          Subtotal
+                          <span class="price float-right">
+                            <span class="currency">$</span>
+                            <span id="subtotal">{{subtotal}}</span>
+                          </span>
+                        </li>
+
+                        <!-- ------------------------tax -->
+                        <!-- the key is the tax type, i is the tax percent, j is the tax amount -->
+                        <!-- loop through the nested dictionary -->
+                        {% for key, value in tax_dict.items %}
+                        <!--  -->
+                        {% for i, j in value.items %}
+                        <li style="list-style-type: none">
+                          {{key}} <small>({{i}})%</small>
+                          <span class="price float-right">
+                            <span class="currency">$</span>
+                            <!-- make the id dynamic using the key since it is unique. This will be used in the ajax request
+                           to update the tax fields without refreshing the page -->
+                            <span id="tax-{{key}}">{{j}}</span>
+                          </span>
+                        </li>
+                        {% endfor %}
+                        <!--  -->
+                        {% endfor %}
+                        <!-- ---------------tax -->
+
+                        <li style="list-style-type: none; font-weight: 600">
+                          Total
+                          <span class="price float-right">
+                            <span class="currency">$</span>
+                            <span id="total">{{grand_total}}</span>
+                          </span>
+                        </li>
+                        <br />
+                        <!-- select payment method -->
+                        <h5>SELECT PAYMENT METHOD</h5>
+                        <div class="payment-method">
+                          <label>
+                            <input
+                              type="radio"
+                              name="payment_method"
+                              value="Paypal"
+                            />
+                            <img
+                              style="width: 100px"
+                              src="{% static 'images/Paypal.png' %}"
+                              alt=""
+                            />
+                          </label>
+                          <!-- tab -->
+                          &emsp13;
+                          <label>
+                            <input
+                              type="radio"
+                              name="payment_method"
+                              value="RazorPay"
+                            />
+                            <img
+                              style="width: 100px"
+                              src="{% static 'images/razorpay_logo.png' %}"
+                              alt=""
+                            />
+                          </label>
+                        </div>
+
+                        <!-- this span will display payment method error -->
+                        <span
+                          class="text-danger"
+                          id="payment_method_error"
+                        ></span>
+                        <br />
+                        <!-- the onclick funtion will check if the user has selected the payment method befor submitting the form -->
+                        <button
+                          type="submit"
+                          class="btn btn-danger w-100 p-2"
+                          onclick="return payMentMethodCheck()"
+                        >
+                          Place Order
+                        </button>
+                      </ul>
+                    </div>
+                  </div>
+                  <!-- I use this to llop through the cart items to get the quantity. 
+                   I then assign the quantity to the respective id. This is picked by the ajax request function -->
+                  {% for item in cart_items %}
+                  <span
+                    id="qty-{{item.product.id}}"
+                    class="item_qty d-none"
+                    data-qty="{{item.quantity}}"
+                  >
+                    {{item.quantity}}</span
+                  >
+                  {% endfor %}
+                  <!-- ------------------------- -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- Main Section End -->
+
+<script>
+  function payMentMethodCheck() {
+    // get the value of the selected pay method
+    var payMethod = $("input[name='payment_method']:checked").val();
+    // the user does not select any payment method
+    if (!payMethod) {
+      // target that span for displaying the error using the id and display the error inside it
+      $("#payment_method_error").html("Select payment method");
+      // don't proceed with the execution of the next code return
+      return false;
+    } else {
+      // show the user the confirm message box to choose between ok or cancel
+      var conf = confirm(
+        "Do you want to continue with " + payMethod + " as your payment method?"
+      );
+      // if  the user click on ok go ahead and execute the next code else stop
+      if (conf == true) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    return false;
+  }
+
+//   hide the error as soon as a payment method is selected after the error is displayed
+// target the payment input using the name, when it changes, target the error input with the id and set the inner html to blank
+  $("input[name=payment_method]").on("change", function () {
+    $("#payment_method_error").html("");
+  });
+</script>
+
+{% endblock %}

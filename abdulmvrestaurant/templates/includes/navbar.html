@@ -1,0 +1,222 @@
+{% load static %}
+<!-- Header Start -->
+<header id="header">
+  <div class="main-header">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+          <div class="logo">
+            <div>
+              <a href="{% url 'home' %}" class="light-logo">
+                <img
+                  src="{% static 'extra-images/abdulllogo2.png' %}"
+                  alt="FoodBakery"
+                  style="width: 100px; height: 40px"
+                />
+              </a>
+            </div>
+          </div>
+          <div class="main-nav">
+            <nav id="site-navigation" class="main-navigation">
+              <ul>
+                <li>
+                  <a href="#">Demos</a>
+                  <ul>
+                    <li></li>
+                    <li>
+                      <a href="#">Single Restaurant Demo</a>
+                    </li>
+                  </ul>
+                  <!--End Sub Menu -->
+                </li>
+                <li><a href="#">Restaurants</a></li>
+                <li>
+                  <a href="#">Pages</a>
+                  <ul>
+                    <li></li>
+                  </ul>
+                  <!--End Sub Menu -->
+                </li>
+                <li>
+                  <a href="#">Blogs</a>
+                  <ul>
+                    <li></li>
+                  </ul>
+                  <!--End Sub Menu -->
+                </li>
+              </ul>
+            </nav>
+            <!-- .main-navigation -->
+          </div>
+
+          <div class="main-location">
+            <ul>
+              <li class="location-has-children choose-location">
+                <form action="#">
+                  <input
+                    type="text"
+                    value=""
+                    id="location"
+                    name="location"
+                    placeholder="Your current location"
+                    autocomplete="off"
+                  />
+                  <span
+                    id="foodbakery_radius_location_open"
+                    class="foodbakery-radius-location"
+                    onclick="getLocation()"
+                    ><i class="icon-target5"></i
+                  ></span>
+                </form>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-4 col-sm-12 col-xs-12">
+          <div class="login-option">
+            {% if user.is_authenticated %}
+            <!-- add the cart icon and badge to display the quuantity -->
+            <a href="{% url 'cart_page' %}"
+              ><i class="fa fa-shopping-cart" style="font-size: 20px"></i>
+              <span
+                class="badge badge-warning"
+                style="
+                  margin-right: 0px;
+                  border-radius: 50%;
+                  position: relative;
+                  bottom: 10px;
+                  left: -5px;
+                "
+                id="cart_counter"
+                >{{cart_count}}</span
+              >
+            </a>
+
+            {% endif %}
+            <!-- ---------------------------------------------------------------------------- -->
+            <a
+              href="{% url 'marketplace' %}"
+              class="btn btn-outline-danger text-uppercase font-weight-bold"
+              >Marketplace</a
+            >
+            {% if user.is_authenticated %}
+            <a
+              href="{% url 'myaccount' %}"
+              class="cs-color cs-popup-joinus-btn login-popup"
+              >MY ACCOUNT</a
+            >
+            <a
+              href="{% url 'logout' %}"
+              class="cs-color cs-popup-joinus-btn login-popup"
+              >Logout</a
+            >
+
+            {% else %}
+            <a
+              href="{% url 'login' %}"
+              class="cs-color cs-popup-joinus-btn login-popup"
+              >Login /</a
+            >
+            <span>
+              <a
+                class="cs-color cs-popup-joinus-btn login-popup ml-0"
+                href="{% url 'registerUser' %}"
+                >Register</a
+              ></span
+            >
+            <a class="get-start-btn" href="{% url 'registerVendor' %}">
+              Register Restaurant
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+<!-- Header End -->
+
+<!-- this script was copied from w3s school html geolocation api -->
+<!-- used to get the curren t loaction of the user -->
+
+<script>
+  // get the elemnt of the input which contains the button to be clicked to get the location and assign its value to x.
+  // x is now the input
+  const x = document.getElementById("location");
+  // get whatever is stored as current location in the session storage and assign it to the variable current location
+  var current_location = sessionStorage.getItem("current_location");
+  // check if there is current location or current location was assigned
+  if (current_location != "") {
+    // then put the value inside the input field
+    x.value = current_location;
+  }
+
+  // make sure to call this function inside the your current location at the top
+  function getLocation() {
+    if (navigator.geolocation) {
+      // this will get the current location of the user. lat and lng and others
+      navigator.geolocation.getCurrentPosition(showPosition);
+    } else {
+      x.innerHTML = "Geolocation is not supported by this browser.";
+    }
+  }
+
+  // this function is called inside the above function
+  function showPosition(position) {
+    // try console.log(position) to see the data it contains
+    // the position contains the lat and lng , altitude and other information
+    // get lat
+    var lat = position.coords.latitude;
+    // get the lng
+    var lng = position.coords.longitude;
+
+    // concat the values of lat and lng and put it in x. that is the input
+    // x.value = lat + lng
+
+    // ------------------------------------------------------------------------------
+
+    // hit the ajax request to googlemaps api endpoint and get the location data using the lat and lng you get from here
+
+    // get the google api key from the context_processors which you defined earlier
+
+    var GOOGLE_API_KEY = "{{ GOOGLE_API_KEY }}";
+
+    // get the url. This the endpoint with a dynamic lat and lng and the api key.
+
+    var url =
+      "https://maps.googleapis.com/maps/api/geocode/json?latlng=" +
+      lat +
+      "," +
+      lng +
+      "+&key=" +
+      GOOGLE_API_KEY;
+
+    // console.log(url)
+
+    // start the ajax request
+
+    $.ajax({
+      url: url,
+      type: "GET",
+      success: function (response) {
+        //  when you console log response you get many array that contain several info.
+        //  in this case waht we want is the address and the address is the formatted address.
+        //  this formatted address is obtained when you expand results, the first item, then you get it and assign it to the location
+        // console.log(response);
+        var current_location = response.results[0].formatted_address;
+        // console.log(location) this will show you the current address
+
+        // assign the value of location to the input
+        x.value = current_location;
+        // store the location in the session storage so that it does not disappear when the page is loaded
+        sessionStorage.setItem("current_location", current_location);
+        // this will reload the page and put the lat and lng in the url when the button is clicked
+
+        window.location = "?lat=" + lat + "&lng=" + lng;
+      },
+    });
+
+    // x.innerHTML = "Latitude: " + position.coords.latitude +
+    // "<br>Longitude: " + position.coords.longitude;
+  }
+</script>

@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+<!--  -->
+{% load static %}
+<!--  -->
+{% block content %}
+
+<!-- Main Section Start -->
+
+<!-- cover page -->
+
+<div class="main-section">{% include 'includes/cover.html' %}</div>
+
+<!-- main body -->
+<div class="page-section account-header buyer-logged-in">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+        <!-- sidebar goes here -->
+        {% include 'includes/v_sidebar.html' %}
+      </div>
+      <!--  -->
+      <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
+        <div class="user-dashboard loader-holder">
+          <div class="user-holder">            
+            <div class="container">
+                <div class="justify-content-center row">
+                    <div class="col-md-12">
+                        <div class="bg-white p-2">
+                            <img src="{%  static 'logo/abdullogo1.png' %}" width="300" alt="logo">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h4 class="mt-2 mb-3">Thank you for your order</h4>
+                                </div>
+                                <div class="col-md-6 text-right">
+                                    <p class="mb-0">{{order.name}}</p>
+                                    <p class="mb-0">{{order.address}}</p>
+                                    <p class="mb-0">{{order.phone}}</p>
+                                    <p class="mb-0">{{order.email}}</p>
+                                </div>
+                            </div>
+                            
+                            <h6>Hello {{ order.name }},</h6><span>Review your order details below</span>
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <span class="d-block">Order Date: </span><span class="font-weight-bold">{{ order.created_at }}</span>
+                                </div>
+                                <div>
+                                    <span class="d-block">Order Number: </span><span class="font-weight-bold">{{ order.order_number }}</span>
+                                </div>
+                                <div>
+                                    <span class="d-block">Payment Method: </span><span class="font-weight-bold">{{ order.payment_method }}</span>
+                                </div>
+                                <div>
+                                    <span class="d-block">Transaction ID: </span><span class="font-weight-bold">{{ order.payment.transaction_id }}</span>
+                                </div>
+                            </div>
+                            <hr>
+                            <table>
+                                <tbody>
+                                  {% for item in ordered_food %}
+                                  <tr>
+                                    <td>
+                                      <img
+                                        src="{{item.product.image.url}}"
+                                        alt=""
+                                        width="40"
+                                      />
+                                    </td>
+                                    <td>
+                                       <p class="mb-0"><b>{{item.product}}</b></p> 
+                                        <a
+                                        href="{% url 'vendor_detail' item.product.vendor.vendor_slug %}"
+                                        class="badge badge-warning"
+                                        >{{item.product.vendor.vendor_name}}</a
+                                      >
+                                    </td>
+                                    <td>{{item.quantity}}</td>
+                                    <td>${{item.product.price}}</td>
+                                  </tr>
+                                  {% endfor %}
+                                </tbody>
+                              </table>
+                              <div class="row mt-5">
+                                <div class="d-flex justify-content-center col-md-6">
+                                    <img src="{% static 'images/paid.png' %}" width="150" alt="">
+                                </div>
+                                <div class="col-md-6">
+                                    <ul>
+                                        <li style="list-style-type: none">
+                                          Subtotal
+                                          <span class="price float-right">
+                                            <span class="currency">$</span>
+                                            <span id="subtotal">{{sub_total}}</span>
+                                          </span>
+                                        </li>
+                  
+                                        <!-- ------------------------tax -->
+                                        <!-- the key is the tax type, i is the tax percent, j is the tax amount -->
+                                        <!-- loop through the nested dictionary -->
+                                        {% for key, value in tax_data.items %}
+                                        <!--  -->
+                                        {% for i, j in value.items %}
+                                        <li style="list-style-type: none">
+                                          {{key}} <small>({{i}})%</small>
+                                          <span class="price float-right">
+                                            <span class="currency">$</span>
+                                            <!-- make the id dynamic using the key since it is unique. This will be used in the ajax request
+                                             to update the tax fields without refreshing the page -->
+                                            <span id="tax-{{key}}">{{j}}</span>
+                                          </span>
+                                        </li>
+                                        {% endfor %}
+                                        <!--  -->
+                                        {% endfor %}
+                                        <!-- ---------------tax -->
+                  
+                                        <li style="list-style-type: none; font-weight: 600">
+                                          Total
+                                          <span class="price float-right">
+                                            <span class="currency">$</span>
+                                            <span id="total">{{grand_total}}</span>
+                                          </span>
+                                        </li>
+                                        <br />
+                                        <!-- <a href="{% url 'checkout' %}" class="btn btn-danger w-100 p-2">Proceed to Checkout</a> -->
+                                        <div id="paypal-button-container"></div>
+                                      </ul>
+                                </div>
+                              </div>
+                              <hr>
+                              <div class="d-flex justify-content-between">
+                                <span class="d-block font-weightbold">
+                                    Thank you for ordering with us
+                                </span>
+                              </div>
+                              <div class="d-flex justify-content-end align-items-end">
+                                <span class="d-block font-weightbold">
+                                    Need help? 
+                                </span>
+                                <span>Call:  +1 647-619-2144</span>
+                              </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--  -->
+    </div>
+  </div>
+</div>
+
+<!-- Main Section End -->
+<div class="row">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+    {% include 'includes/alerts.html' %}
+  </div>
+</div>
+{% endblock %}
+
