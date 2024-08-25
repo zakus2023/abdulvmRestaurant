@@ -183,15 +183,14 @@ GOOGLE_API_KEY = config('GOOGLE_API_KEY')
 
 
 
-
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-# Set GDAL and PROJ_LIB environment variables
-os.environ['PATH'] = str(BASE_DIR / 'newenv/Lib/site-packages/osgeo') + ';' + os.environ.get('PATH', '')
-os.environ['PROJ_LIB'] = str(BASE_DIR / 'newenv/Lib/site-packages/osgeo/data/proj') + ';' + os.environ.get('PROJ_LIB', '')
-GDAL_LIBRARY_PATH = str(BASE_DIR / 'newenv/Lib/site-packages/osgeo/gdal.dll')
-
-os.environ['GDAL_LIBRARY_PATH'] = GDAL_LIBRARY_PATH
+# i adde this when i was deploying to live server
+if DEBUG == True:
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    # Set GDAL and PROJ_LIB environment variables
+    os.environ['PATH'] = str(BASE_DIR / 'newenv/Lib/site-packages/osgeo') + ';' + os.environ.get('PATH', '')
+    os.environ['PROJ_LIB'] = str(BASE_DIR / 'newenv/Lib/site-packages/osgeo/data/proj') + ';' + os.environ.get('PROJ_LIB', '')
+    GDAL_LIBRARY_PATH = str(BASE_DIR / 'newenv/Lib/site-packages/osgeo/gdal.dll')
+    os.environ['GDAL_LIBRARY_PATH'] = GDAL_LIBRARY_PATH
 
 
 # PAYPAL CLIENT INFORMATION
